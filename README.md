@@ -1,4 +1,4 @@
-A gravitational lensing amplification finder for non-spherical and spherical lenses
+GLASS (Gravitational Lensing Amplification Solver Suite) is a gravitational lensing amplification finder for non-spherical and spherical lenses.
 
 INSTALLATION :
 
