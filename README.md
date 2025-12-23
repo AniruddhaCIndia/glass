@@ -8,7 +8,7 @@ git clone https://github.com/AniruddhaCIndia/glass.git
 
 Step II (Find installer, it's in the same folder):
 
-cd glance
+cd glass
 
 Step III (Install glance):
 
@@ -16,6 +16,6 @@ pip install -e . (Any changes ypu make to GLANCE are accounted without reinstall
 
 Step IV (Update installation):
 
-cd glance
+cd glass
 
 git pull origin main
