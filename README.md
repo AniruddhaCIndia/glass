@@ -1,6 +1,6 @@
 GLASS (Gravitational Lensing Amplification Solver Suite) is a lensing modulation finder for non-spherical and spherical lens systems.
 
-INSTALLATION :
+**INSTALLATION** :
 
 Step I (git cloning, so that files move to your local):
 
