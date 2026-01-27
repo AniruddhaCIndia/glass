@@ -10,9 +10,9 @@ Step II (Find installer, it's in the same folder):
 
 cd glass
 
-Step III (Install glance):
+Step III (Install glass):
 
-pip install -e . (Any changes ypu make to GLANCE are accounted without reinstalling it again.)
+pip install -e . (Any changes ypu make to GLASS are accounted without reinstalling it again.)
 
 Step IV (Update installation):
 
