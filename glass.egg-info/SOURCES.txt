@@ -3,6 +3,7 @@ README.md
 setup.py
 glass/__init__.py
 glass/amplifier_asym_brute.py
+glass/amplifier_asym_v2.py
 glass/amplifier_sym_brute.py
 glass/modeler.py
 glass/reconstructor.py
