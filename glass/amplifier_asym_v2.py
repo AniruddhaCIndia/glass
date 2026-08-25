@@ -1,9 +1,14 @@
 import math
 import numpy as np
-from scipy.integrate import quad_vec
+from scipy.integrate import quad_vec, quad
 import warnings
 
-def quad_complex_vec(fun, a, b, return_error=False, **kwargs):
+def quad_complex(fun, a, b, **kwargs):
+    real_part = quad(lambda t: np.real(fun(t)), a, b, **kwargs)[0]
+    imag_part = quad(lambda t: np.imag(fun(t)), a, b, **kwargs)[0]
+    return real_part + 1j*imag_part
+
+def quad_complex_vec_v2(fun, a, b, return_error=False, **kwargs):
     """
     Integrate a complex scalar function by passing its real and imaginary
     components together to scipy.integrate.quad_vec.
@@ -20,9 +25,17 @@ def quad_complex_vec(fun, a, b, return_error=False, **kwargs):
     return value
 
 def f_z_asymmetric(z, w, y, phi_m, psi, 
-                   source_angle=0.0, theta_epsabs=1e-8, theta_epsrel=1e-8, 
+                   source_angle=0.0, theta_epsabs=1e-8, 
+                   theta_epsrel=1e-8, limit=1000,
+                   integrator = quad_complex_vec_v2,
                    **kwargs):
-    if z < 0.0:
+    
+    if psi is None:
+        psi = lambda x, theta: 0.0
+    if phi_m is None:
+        phi_m = lambda y: 0.0
+        
+    if z <= 0.0:
         return 0.0 + 0.0j
 
     x = math.sqrt(2.0 * z)
@@ -37,13 +50,13 @@ def f_z_asymmetric(z, w, y, phi_m, psi,
             -1j * w * (y * x * np.cos(theta-source_angle) + psi(x, theta))
         )
 
-    theta_integral = quad_complex_vec(
+    theta_integral = integrator(
         theta_integrand,
         0.0,
         2.0 * math.pi,
         epsabs=theta_epsabs,
         epsrel=theta_epsrel,
-        limit=1000,
+        limit=limit,
     )
 
     return prefactor * theta_integral
@@ -54,18 +67,20 @@ def F_segment_0_to_b(
     b,
     z_epsabs=1e-8,
     z_epsrel=1e-8,
+    limit=1000,
+    integrator=quad_complex_vec_v2,
     **kwargs
 ):
     def integrand(z):
         return f_z_asymmetric(z, w, y, **kwargs) * np.exp(1j * w * z)
 
-    return quad_complex_vec(
+    return integrator(
         integrand,
         0.0,
         b,
         epsabs=z_epsabs,
         epsrel=z_epsrel,
-        limit=1000,
+        limit=limit,
     )
     
 def f_prime_fd_5pt(b, w, y, h=5e-3, **kwargs):
