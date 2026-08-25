@@ -149,7 +149,6 @@ def tail_asymptotic_1term(w, y, b, **kwargs):
     f_b = f_z_asymmetric(b, w, y, **kwargs)
     return np.exp(1j * w * b) * (-f_b / (1j * w))
 
-
 def tail_asymptotic_2term(w, y, b, h=5e-3, **kwargs):
     term_1, term_2 = tail_terms_2term(w, y, b, h=h, **kwargs)
     return term_1 + term_2
