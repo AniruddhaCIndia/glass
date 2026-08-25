@@ -19,7 +19,9 @@ def quad_complex_vec(fun, a, b, return_error=False, **kwargs):
         return value, error
     return value
 
-def f_z_asymmetric(z, w, y, source_angle=0.0, theta_epsabs=1e-8, theta_epsrel=1e-8):
+def f_z_asymmetric(z, w, y, phi_m, psi, 
+                   source_angle=0.0, theta_epsabs=1e-8, theta_epsrel=1e-8, 
+                   **kwargs):
     if z < 0.0:
         return 0.0 + 0.0j
 
@@ -52,9 +54,10 @@ def F_segment_0_to_b(
     b,
     z_epsabs=1e-8,
     z_epsrel=1e-8,
+    **kwargs
 ):
     def integrand(z):
-        return f_z_asymmetric(z, w, y) * np.exp(1j * w * z)
+        return f_z_asymmetric(z, w, y, **kwargs) * np.exp(1j * w * z)
 
     return quad_complex_vec(
         integrand,
@@ -65,7 +68,7 @@ def F_segment_0_to_b(
         limit=1000,
     )
     
-def f_prime_fd_5pt(b, w, y, h=5e-3):
+def f_prime_fd_5pt(b, w, y, h=5e-3, **kwargs):
     """
     Five-point central finite-difference approximation to df/dz at b.
 
@@ -75,50 +78,50 @@ def f_prime_fd_5pt(b, w, y, h=5e-3):
         raise ValueError("Need b > 2*h for the five-point stencil.")
 
     return (
-        f_z_asymmetric(b - 2.0 * h, w, y)
-        - 8.0 * f_z_asymmetric(b - h, w, y)
-        + 8.0 * f_z_asymmetric(b + h, w, y)
-        - f_z_asymmetric(b + 2.0 * h, w, y)
+        f_z_asymmetric(b - 2.0 * h, w, y, **kwargs)
+        - 8.0 * f_z_asymmetric(b - h, w, y, **kwargs)
+        + 8.0 * f_z_asymmetric(b + h, w, y, **kwargs)
+        - f_z_asymmetric(b + 2.0 * h, w, y, **kwargs)
     ) / (12.0 * h)
     
-def f_second_fd_5pt(b, w, y, h=5e-3):
+def f_second_fd_5pt(b, w, y, h=5e-3, **kwargs):
     return (
-        -f_z_asymmetric(b - 2*h, w, y)
-        + 16.0 * f_z_asymmetric(b - h, w, y)
-        - 30.0 * f_z_asymmetric(b, w, y)
-        + 16.0 * f_z_asymmetric(b + h, w, y)
-        - f_z_asymmetric(b + 2*h, w, y)
+        -f_z_asymmetric(b - 2*h, w, y, **kwargs)
+        + 16.0 * f_z_asymmetric(b - h, w, y, **kwargs)
+        - 30.0 * f_z_asymmetric(b, w, y, **kwargs)
+        + 16.0 * f_z_asymmetric(b + h, w, y, **kwargs)
+        - f_z_asymmetric(b + 2*h, w, y, **kwargs)
     ) / (12.0 * h**2)
     
-def f_prime_fd_7pt(b, w, y, h=5e-3):
+def f_prime_fd_7pt(b, w, y, h=5e-3, **kwargs):
     return (
-        -f_z_asymmetric(b - 3*h, w, y)
-        + 9*f_z_asymmetric(b - 2*h, w, y)
-        - 45*f_z_asymmetric(b - h, w, y)
-        + 45*f_z_asymmetric(b + h, w, y)
-        - 9*f_z_asymmetric(b + 2*h, w, y)
-        + f_z_asymmetric(b + 3*h, w, y)
+        -f_z_asymmetric(b - 3*h, w, y, **kwargs)
+        + 9*f_z_asymmetric(b - 2*h, w, y, **kwargs)
+        - 45*f_z_asymmetric(b - h, w, y, **kwargs)
+        + 45*f_z_asymmetric(b + h, w, y, **kwargs)
+        - 9*f_z_asymmetric(b + 2*h, w, y, **kwargs)
+        + f_z_asymmetric(b + 3*h, w, y, **kwargs)
     ) / (60*h)
     
-def f_second_fd_7pt(b, w, y, h=5e-3):
+def f_second_fd_7pt(b, w, y, h=5e-3, **kwargs):
     return (
-        2*f_z_asymmetric(b - 3*h, w, y)
-        - 27*f_z_asymmetric(b - 2*h, w, y)
-        + 270*f_z_asymmetric(b - h, w, y)
-        - 490*f_z_asymmetric(b, w, y)
-        + 270*f_z_asymmetric(b + h, w, y)
-        - 27*f_z_asymmetric(b + 2*h, w, y)
-        + 2*f_z_asymmetric(b + 3*h, w, y)
+        2*f_z_asymmetric(b - 3*h, w, y, **kwargs)
+        - 27*f_z_asymmetric(b - 2*h, w, y, **kwargs)
+        + 270*f_z_asymmetric(b - h, w, y, **kwargs)
+        - 490*f_z_asymmetric(b, w, y, **kwargs)
+        + 270*f_z_asymmetric(b + h, w, y, **kwargs)
+        - 27*f_z_asymmetric(b + 2*h, w, y, **kwargs)
+        + 2*f_z_asymmetric(b + 3*h, w, y, **kwargs)
     ) / (180*h**2)
     
-def tail_terms_2term(w, y, b, h=5e-3):
+def tail_terms_2term(w, y, b, h=5e-3, **kwargs):
     """
     Returns:
         term_1 = -exp(iwb) f(b)/(iw)
         term_2 =  exp(iwb) f'(b)/(iw)^2
     """
-    f_b = f_z_asymmetric(b, w, y)
-    fp_b = f_prime_fd_5pt(b, w, y, h=h)
+    f_b = f_z_asymmetric(b, w, y, **kwargs)
+    fp_b = f_prime_fd_5pt(b, w, y, h=h, **kwargs)
 
     phase = np.exp(1j * w * b)
 
@@ -127,19 +130,19 @@ def tail_terms_2term(w, y, b, h=5e-3):
 
     return term_1, term_2
 
-def tail_asymptotic_1term(w, y, b):
-    f_b = f_z_asymmetric(b, w, y)
+def tail_asymptotic_1term(w, y, b, **kwargs):
+    f_b = f_z_asymmetric(b, w, y, **kwargs)
     return np.exp(1j * w * b) * (-f_b / (1j * w))
 
 
-def tail_asymptotic_2term(w, y, b, h=5e-3):
-    term_1, term_2 = tail_terms_2term(w, y, b, h=h)
+def tail_asymptotic_2term(w, y, b, h=5e-3, **kwargs):
+    term_1, term_2 = tail_terms_2term(w, y, b, h=h, **kwargs)
     return term_1 + term_2
 
-def tail_asymptotic_3term(w, y, b, h=5e-3):
-    f_b = f_z_asymmetric(b, w, y)
-    fp_b = f_prime_fd_5pt(b, w, y, h=h)
-    fpp_b = f_second_fd_5pt(b, w, y, h=h)
+def tail_asymptotic_3term(w, y, b, h=5e-3, **kwargs):
+    f_b = f_z_asymmetric(b, w, y, **kwargs)
+    fp_b = f_prime_fd_5pt(b, w, y, h=h, **kwargs)
+    fpp_b = f_second_fd_5pt(b, w, y, h=h, **kwargs)
 
     phase = np.exp(1j * w * b)
 
@@ -156,6 +159,7 @@ def converged_F(
     h=5e-3,
     rtol=1e-4,
     atol=1e-8,
+    **kwargs
 ):
     """
     Compute one- and two-term-tail results over several cutoffs.
@@ -180,9 +184,9 @@ def converged_F(
     results = []
 
     for b in b_values:
-        F_segment = F_segment_0_to_b(w, y, b)
+        F_segment = F_segment_0_to_b(w, y, b, **kwargs)
 
-        tail_1, tail_2_correction = tail_terms_2term(w, y, b, h=h)
+        tail_1, tail_2_correction = tail_terms_2term(w, y, b, h=h, **kwargs)
 
         F_1term = F_segment + tail_1
         F_2term = F_segment + tail_1 + tail_2_correction
@@ -255,6 +259,7 @@ def converged_F_v2(
     h=5e-3,
     rtol=1e-4,
     atol=1e-8,
+    **kwargs
 ):
     """
     Compute F using one- and two-term tail corrections for increasing b.
@@ -273,6 +278,8 @@ def converged_F_v2(
         Step size for the five-point derivative.
     rtol, atol : float
         Relative and absolute cutoff-convergence tolerances.
+    **kwargs
+        Additional keyword arguments for the underlying functions.
     """
     b_values = np.asarray(b_values, dtype=float)
 
@@ -293,10 +300,10 @@ def converged_F_v2(
                 f"b={b} is too small for the five-point derivative with h={h}."
             )
 
-        F_segment = F_segment_0_to_b(w, y, b)
+        F_segment = F_segment_0_to_b(w, y, b, **kwargs)
 
         tail_1, tail_2_correction = tail_terms_2term(
-            w, y, b, h=h
+            w, y, b, h=h, **kwargs
         )
 
         F_1term = F_segment + tail_1
@@ -365,13 +372,14 @@ def converged_F_v2(
         "all_results": results,
     }
       
-def check():
+def check(**kwargs):
     check = converged_F(
         w=1.0,
         y=1.0,
         b_values=[50.0, 100.0, 200.0, 400.0],
         h=5e-3,
         rtol=1e-4,
+        **kwargs
     )
 
     if check["converged"]:
@@ -385,13 +393,13 @@ def check():
     w = 1.0
     y = 1.0
 
-    fp_h = f_prime_fd_5pt(b, w, y, h=5e-3)
-    fp_h2 = f_prime_fd_5pt(b, w, y, h=2.5e-3)
+    fp_h = f_prime_fd_5pt(b, w, y, h=5e-3, **kwargs)
+    fp_h2 = f_prime_fd_5pt(b, w, y, h=2.5e-3, **kwargs)
 
     relative_derivative_change = abs(fp_h - fp_h2) / max(abs(fp_h2), 1e-10)
     print("Derivative stability:", relative_derivative_change)  
       
-def check_v2():
+def check_v2(**kwargs):
 
     check = converged_F_v2(
         w=5,
@@ -399,6 +407,7 @@ def check_v2():
         b_values=[100.0, 200.0, 500.0, 1000.0],
         h=1e-3,
         rtol=1e-3,
+        **kwargs
     )
 
     if check["converged"]:
